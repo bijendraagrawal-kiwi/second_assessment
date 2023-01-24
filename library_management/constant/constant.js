@@ -1,0 +1,10 @@
+const constant = {};
+constant.STUDENT_NOT_EXIST_ERROR = 'student does not exist';
+constant.PASSWORD_NOT_MATCH = 'student password does not match';
+constant.LOGIN_SUCCESS = 'student login successfully';
+constant.STUDENT_UPDATE_SUCCESS = 'student has been update successfully';
+constant.NOTHING_FOR_DELETE = 'there is not any student for delete';
+constant.DELETE_SUCCESSFULLY = 'student has been delete successfully';
+constant.PERMISSION_UPDATE_SUCCESS = 'permission has been update successfully';
+constant.PERMISSION_NOT_EXIST_ERROR = 'permission does not exist';
+module.exports = constant;
