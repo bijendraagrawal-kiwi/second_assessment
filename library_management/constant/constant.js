@@ -7,4 +7,7 @@ constant.NOTHING_FOR_DELETE = 'there is not any student for delete';
 constant.DELETE_SUCCESSFULLY = 'student has been delete successfully';
 constant.PERMISSION_UPDATE_SUCCESS = 'permission has been update successfully';
 constant.PERMISSION_NOT_EXIST_ERROR = 'permission does not exist';
+constant.SUB_ADMIN_CREATED = 'sub admin has been created';
+constant.ADMIN_NOT_FOUND = 'user is not save as admin';
+constant.NOT_ADMIN = 'you are not a admin so you can not access this request';
 module.exports = constant;
