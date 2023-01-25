@@ -35,7 +35,6 @@ const studentUpdate = async (req, res) => {
         roll_number: req.body.roll_number,
         name: req.body.name,
         contact_number: req.body.contact_number,
-        email: req.body.updatedEmail,
         address: req.body.address,
         password: encryptedUpdatePassword,
       },
@@ -49,12 +48,15 @@ const studentUpdate = async (req, res) => {
   return constant.NOT_ADMIN;
 };
 
-const studentdelete = async (req) => {
-  studentObject = await studentModel.deleteOne({ email: req.body.email });
-  if (studentObject.deletedCount === 0) {
-    return constant.NOTHING_FOR_DELETE;
+const studentdelete = async (req, res) => {
+  if (res.locals.admin) {
+    studentObject = await studentModel.deleteOne({ email: req.body.email });
+    if (studentObject.deletedCount === 0) {
+      return constant.NOTHING_FOR_DELETE;
+    }
+    return constant.DELETE_SUCCESSFULLY;
   }
-  return constant.DELETE_SUCCESSFULLY;
+  return constant.NOT_ADMIN;
 };
 
 module.exports = {

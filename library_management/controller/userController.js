@@ -1,4 +1,9 @@
-const { studentLogin, studentSignup, studentUpdate } = require('../service/student.service');
+const {
+  studentLogin,
+  studentSignup,
+  studentUpdate,
+  studentdelete,
+} = require('../service/student.service');
 
 const signup = async (req, res) => {
   try {
@@ -28,8 +33,18 @@ const updatestudent = async (req, res) => {
   }
 };
 
+const deleteStudent = async (req, res) => {
+  try {
+    const result = await studentdelete(req, res);
+    res.send(result);
+  } catch (err) {
+    res.send(err);
+  }
+};
+
 module.exports = {
   signup,
   login,
   updatestudent,
+  deleteStudent,
 };

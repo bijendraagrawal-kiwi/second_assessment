@@ -4,8 +4,8 @@ const constant = require('../constant/constant');
 const { passwordEncrypt } = require('../utils/student.utils');
 
 const createSubAdmin = async (req) => {
-  const encryptedPassword = passwordEncrypt(req.body.password);
-  const subAdminResult = new subAdmin({
+  const encryptedPassword = await passwordEncrypt(req.body.password);
+  const subAdminResult = new subAdmin.studentModel({
     name: req.body.name,
     contact_number: req.body.contact_number,
     email: req.body.email,
