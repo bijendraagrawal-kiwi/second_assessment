@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
+const { studentModel } = require('./studentSchema');
 
 const permissionSchema = mongoose.Schema({
-  email: String,
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: studentModel,
+  },
   permissionType: String,
 });
 

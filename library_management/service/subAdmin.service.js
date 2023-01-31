@@ -1,26 +1,49 @@
+const jwt = require('jsonwebtoken');
 const subAdmin = require('../schema/studentSchema');
-const subAdminPermission = require('../schema/permissionSchema');
-const constant = require('../constant/constant');
-const { passwordEncrypt } = require('../utils/student.utils');
+const { constant } = require('../constant/constant');
+const { passwordEncrypt, comparePassword, findStudent } = require('../utils/student.utils');
 
 const createSubAdmin = async (req) => {
-  const encryptedPassword = await passwordEncrypt(req.body.password);
-  const subAdminResult = new subAdmin.studentModel({
-    name: req.body.name,
-    contact_number: req.body.contact_number,
-    email: req.body.email,
-    address: req.body.address,
-    password: encryptedPassword,
-  });
-  await subAdminResult.save();
-
-  const subAdminPermissionResult = new subAdminPermission({
-    email: req.body.email,
-    permissionType: req.body.permissionType,
-  });
-  await subAdminPermissionResult.save();
-  return constant.SUB_ADMIN_CREATED;
+  const {
+    email, name, contact, address, password,
+  } = req.body;
+  const encryptedPassword = await passwordEncrypt(password);
+  const isSubAdminPresent = await findStudent(email);
+  if (!isSubAdminPresent.error) {
+    if (!isSubAdminPresent) {
+      const subAdminResult = new subAdmin.studentModel({
+        name,
+        contact,
+        email,
+        address,
+        password: encryptedPassword,
+        issubadmin: true,
+      });
+      const result = await subAdminResult.save();
+      return result;
+    }
+    return constant.SUB_ADMIN_ALREADY_EXIST;
+  }
+  return isSubAdminPresent.error;
 };
+
+const subAdminLogin = async (req) => {
+  const { email, password } = req.body;
+  const subAdminObject = await subAdmin.studentModel.findOne({ email });
+  if (!subAdminObject) {
+    if (subAdminObject.issubadmin) {
+      const compare = await comparePassword(password, subAdminObject.password);
+      if (compare) {
+        return jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY);
+      }
+      return constant.PASSWORD_NOT_MATCH;
+    }
+    return constant.NOT_SUB_ADMIN;
+  }
+  return constant.STUDENT_NOT_EXIST_ERROR;
+};
+
 module.exports = {
   createSubAdmin,
+  subAdminLogin,
 };

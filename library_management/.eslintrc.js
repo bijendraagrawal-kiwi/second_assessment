@@ -14,5 +14,6 @@ module.exports = {
     'no-console': 0,
     'import/no-extraneous-dependencies': 0,
     'new-cap': 0,
+    'no-underscore-dangle': 0,
   },
 };

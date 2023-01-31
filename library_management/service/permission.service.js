@@ -1,28 +1,38 @@
 const permission = require('../schema/permissionSchema');
-const constant = require('../constant/constant');
+const { constant } = require('../constant/constant');
+const { findPermission } = require('../utils/student.utils');
 
-let permissionObject;
 const createPermission = async (req) => {
-  permissionObject = new permission({
-    email: req.body.email,
-    permissionType: req.body.permissionType,
-  });
-  const result = await permissionObject.save();
-  return result;
+  const { userId, permissionType } = req.body;
+  const isPermissionPresent = findPermission(userId, permissionType);
+  if (!isPermissionPresent.error) {
+    if (!isPermissionPresent) {
+      const permissionObject = new permission({
+        userId,
+        permissionType,
+      });
+      const result = await permissionObject.save();
+      return result;
+    }
+    return constant.PERMISSION_ALREADY_GIVEN;
+  }
+  return isPermissionPresent.error;
 };
 
 const deletePermission = async (req) => {
-  permissionObject = await permission.findOneAndDelete({ email: req.body.email });
-  if (permissionObject.deletedCount === 0) {
-    return constant.NOTHING_FOR_DELETE;
+  const { userId, permissionType } = req.body;
+  const permissionObject = await permission.findOneAndDelete({ userId, permissionType });
+  if (permissionObject.deletedCount) {
+    return constant.DELETE_SUCCESSFULLY;
   }
-  return constant.DELETE_SUCCESSFULLY;
+  return constant.NOTHING_FOR_DELETE;
 };
 
 const upadtePermission = async (req) => {
-  permissionObject = await permission.findByIdAndUpdate({ email: req.body.email }, {
+  const { userId, permissionType } = req.body;
+  const permissionObject = await permission.findByIdAndUpdate({ userId }, {
     $set: {
-      permissionType: req.body.permissionType,
+      permissionType,
     },
   });
   if (permissionObject == null) {

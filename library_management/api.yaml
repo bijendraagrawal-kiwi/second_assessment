@@ -1,0 +1,216 @@
+swagger: "2.0"
+info:
+  title: Library api
+  description: Library Documentation
+  version: 1.0.0
+  contact:
+    email: bijendra.agrawal@kiwitech.com
+  servers:
+    -url: "http://localhost:8080/"
+    description: Library server
+
+schemes: [http,https]
+
+paths:
+
+  /signup:
+    post:
+      summary: Posting user
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              roll_number:
+                type: number
+              name:
+                type: string
+              contact_number:
+                type: number
+              email:
+                type: string
+              address:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /update:
+    put:
+      summary: Updating user
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              roll_number:
+                type: string
+              name:
+                type: string
+              contact_number:
+                type: number
+              email:
+                type: string
+              address:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /delete:
+    delete:
+      summary: Deleting user
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              email:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /asignbook:
+    put:
+      summary: Asign book to user
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              bookName:
+                type: string
+              authorName:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /submitbook:
+    put:
+      summary: submit book to library
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              bookId:
+                type: number
+      responses:
+        200:
+          description: ok
+
+  /creatSubAdmin:
+    post:
+      summary: Creating sub admin
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              name:
+                type: string
+              email:
+                type: string
+              contact_number:
+                type: number
+              address:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /addbook:
+    post:
+      summary: Adding book in library
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              bookId:
+                type: string
+              bookName:
+                type: string
+              authorName:
+                type: string
+      responses:
+        200:
+          description: ok
+
+  /deletebook:
+    delete:
+      summary: Delete book from library
+      produce:
+        -application/json
+      consume:
+        -application/json
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              bookId:
+                type: string
+              bookName:
+                type: string
+      responses:
+        200:
+          description: ok

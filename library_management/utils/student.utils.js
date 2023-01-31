@@ -1,20 +1,101 @@
 const bcryptjs = require('bcryptjs');
-const constant = require('../constant/constant');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const { constant } = require('../constant/constant');
+const { studentModel } = require('../schema/studentSchema');
+const permission = require('../schema/permissionSchema');
+const book = require('../schema/bookSchema');
 
 const passwordEncrypt = async (userPassword) => {
-  const salt = await bcryptjs.genSalt(10);
-  const securePassword = await bcryptjs.hash(userPassword, salt);
-  return securePassword;
+  try {
+    const salt = await bcryptjs.genSalt(10);
+    const securePassword = await bcryptjs.hash(userPassword, salt);
+    return securePassword;
+  } catch (err) {
+    return { error: err };
+  }
 };
 
 const comparePassword = async (userPassword, bcryptPassword) => {
-  const result = await bcryptjs.compare(userPassword, bcryptPassword);
-  if (!result) {
-    return constant.PASSWORD_NOT_MATCH;
+  try {
+    const result = await bcryptjs.compare(userPassword, bcryptPassword);
+    if (!result) {
+      return constant.PASSWORD_NOT_MATCH;
+    }
+    return constant.LOGIN_SUCCESS;
+  } catch (err) {
+    return { error: err };
   }
-  return constant.LOGIN_SUCCESS;
 };
+
+const findadmin = async (email) => {
+  try {
+    const adminObject = await studentModel.findOne({ email });
+    return adminObject;
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const findStudent = async (email) => {
+  try {
+    const studentObject = await studentModel.findOne({ email });
+    return studentObject;
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const findPermission = async (userId, permissionType) => {
+  try {
+    const permissionObject = await permission.findOne({ userId, permissionType });
+    return permissionObject;
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const findBook = async (bookName, authorName) => {
+  try {
+    const bookObject = await book.findOne({ bookName, authorName });
+    return bookObject._id;
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const subAdminVerification = async (token) => {
+  try {
+    const verifyObject = jwt.verify(token, constant.SUB_ADMIN_KEY);
+    const subadminObject = await studentModel.findOne(verifyObject.email);
+    const permissionObject = await permission.findOne(subadminObject._id);
+    return {
+      permission: permissionObject.permissionType,
+    };
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const uploadfile = multer({
+  storage: multer.diskStorage({
+
+    destination: (req, file, callback) => {
+      callback(null, 'upload/');
+    },
+    filename: (req, file, callback) => {
+      callback(null, file.originalname);
+    },
+  }),
+});
+
 module.exports = {
   passwordEncrypt,
   comparePassword,
+  findadmin,
+  findStudent,
+  findPermission,
+  findBook,
+  subAdminVerification,
+  uploadfile,
 };

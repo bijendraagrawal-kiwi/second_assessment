@@ -1,9 +1,9 @@
 const admin = require('../schema/studentSchema');
 const permission = require('../schema/permissionSchema');
+const { constant } = require('../constant/constant');
 
-let adminObject;
 const isAdminDelete = async (req, res, next) => {
-  adminObject = await admin.studentModel.findOne({ email: req.body.adminEmail });
+  const adminObject = await admin.studentModel.findOne({ email: req.body.adminEmail });
   if (adminObject.isadmin === true) {
     res.locals.admin = true;
     next();
@@ -23,33 +23,21 @@ const isAdminDelete = async (req, res, next) => {
 };
 
 const isAdminUpdate = async (req, res, next) => {
-  adminObject = await admin.studentModel.findOne({ email: req.body.adminEmail });
-  if (adminObject.isadmin === true) {
-    res.locals.admin = true;
+  const adminObject = await admin.studentModel.findOne({ email: req.body.adminEmail });
+  if (adminObject.isadmin) {
     next();
   } else {
-    const subAdminObject = await permission.findOne({
-      email: req.body.adminEmail,
-      permissionType: req.body.permissionType,
-    });
-    if (subAdminObject.permissionType === 'update') {
-      res.locals.admin = true;
-      next();
-    } else {
-      res.locals.admin = false;
-      next();
-    }
+    res.send(constant.NOT_ADMIN);
   }
 };
 
 const isAdmin = async (req, res, next) => {
-  adminObject = await admin.studentModel.findOne({ email: req.body.adminEmail });
-  if (adminObject.isadmin === true) {
-    res.locals.admin = true;
+  const { email } = req.body;
+  const adminObject = await admin.studentModel.findOne({ email });
+  if (adminObject.isadmin) {
     next();
   } else {
-    res.locals.admin = false;
-    next();
+    res.send(constant.NOT_ADMIN);
   }
 };
 

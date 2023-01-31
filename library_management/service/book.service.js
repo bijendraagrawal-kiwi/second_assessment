@@ -1,20 +1,38 @@
 const book = require('../schema/bookSchema');
-const constant = require('../constant/constant');
+const { constant } = require('../constant/constant');
+const { findBook } = require('../utils/student.utils');
 
-let bookObject;
-const addbook = async (req, res) => {
-  if (res.locals.admin) {
-    bookObject = new book({
-      bookId: req.body.bookId,
-      bookName: req.body.bookName,
-      authorName: req.body.author,
-    });
-    const result = await bookObject.save();
-    return result;
+const addbook = async (req) => {
+  const { bookId, bookName, authorName } = req.body;
+  const isBookPresent = await findBook({ bookName, authorName });
+  if (!isBookPresent.error) {
+    if (!isBookPresent) {
+      const bookObject = new book({
+        bookId,
+        bookName,
+        authorName,
+      });
+      const result = await bookObject.save();
+      return result;
+    }
+    return constant.BOOK_ALREADY_PRESENT;
   }
-  return constant.NOT_ADMIN;
+  return isBookPresent.error;
+};
+
+const deletebook = async (req) => {
+  const { bookId, bookName } = req.body;
+  const bookObject = await book.findOneAndDelete({
+    bookId,
+    bookName,
+  });
+  if (bookObject.deletedCount) {
+    return constant.DELETE_SUCCESSFULLY;
+  }
+  return constant.NOTHING_FOR_DELETE;
 };
 
 module.exports = {
   addbook,
+  deletebook,
 };

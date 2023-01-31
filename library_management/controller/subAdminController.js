@@ -1,15 +1,18 @@
-const { createSubAdmin } = require('../service/subAdmin.service');
-const constant = require('../constant/constant');
+const { createSubAdmin, subAdminLogin } = require('../service/subAdmin.service');
 
-let result;
 const createSubAdminController = async (req, res) => {
   try {
-    if (res.locals.admin === false) {
-      res.send(constant.NOT_ADMIN);
-    } else {
-      result = await createSubAdmin(req);
-      res.send(result);
-    }
+    const result = await createSubAdmin(req);
+    res.send(result);
+  } catch (err) {
+    res.send(err);
+  }
+};
+
+const loginSubAdmin = async (req, res) => {
+  try {
+    const result = await subAdminLogin(req);
+    res.send(result);
   } catch (err) {
     res.send(err);
   }
@@ -17,4 +20,5 @@ const createSubAdminController = async (req, res) => {
 
 module.exports = {
   createSubAdminController,
+  loginSubAdmin,
 };

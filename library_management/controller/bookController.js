@@ -1,4 +1,4 @@
-const { addbook } = require('../service/book.service');
+const { addbook, deletebook } = require('../service/book.service');
 
 const addBookController = async (req, res) => {
   try {
@@ -9,6 +9,16 @@ const addBookController = async (req, res) => {
   }
 };
 
+const deleteBookController = async (req, res) => {
+  try {
+    const result = await deletebook(req, res);
+    res.send(result);
+  } catch (err) {
+    res.send(err);
+  }
+};
+
 module.exports = {
   addBookController,
+  deleteBookController,
 };
