@@ -49,8 +49,19 @@ const deleteAdminVerification = async (req, res, next) => {
   }
 };
 
+const adminVerification = async (req, res, next) => {
+  const { token } = req.body;
+  try {
+    res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
+    next();
+  } catch (err) {
+    res.send(err);
+  }
+};
+
 module.exports = {
   studentVerification,
   updateAdminVerification,
   deleteAdminVerification,
+  adminVerification,
 };

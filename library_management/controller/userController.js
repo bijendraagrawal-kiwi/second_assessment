@@ -9,6 +9,7 @@ const {
   showExpireBooks,
   createAdmin,
   adminLogin,
+  bookHistory,
 } = require('../service/student.service');
 
 const signup = async (req, res) => {
@@ -103,6 +104,15 @@ const libraryAdminLogin = async (req, res) => {
   }
 };
 
+const showHistoryOfBook = async (req, res) => {
+  try {
+    const result = await bookHistory(req);
+    res.send(result);
+  } catch (err) {
+    res.send(err);
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -112,6 +122,7 @@ module.exports = {
   submitAsignbook,
   userAsignBook,
   userExpireBooks,
+  showHistoryOfBook,
   createLibraryAdmin,
   libraryAdminLogin,
 };
