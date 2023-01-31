@@ -185,6 +185,12 @@ const adminLogin = async (req) => {
   return constant.STUDENT_NOT_EXIST_ERROR;
 };
 
+const bookHistory = async (req) => {
+  const { bookId } = req.body;
+  const bookHistoryObject = await studentModel.findOne({ 'asignedbook.bookId': bookId }).populate('asignedbook.bookId');
+  return bookHistoryObject;
+};
+
 module.exports = {
   studentSignup,
   studentLogin,
@@ -196,4 +202,5 @@ module.exports = {
   showExpireBooks,
   createAdmin,
   adminLogin,
+  bookHistory,
 };
