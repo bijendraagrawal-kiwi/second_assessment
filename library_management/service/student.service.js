@@ -156,7 +156,7 @@ const showExpireBooks = async (req) => {
             $filter: {
               input: '$asignedbook',
               as: 'books',
-              cond: { $gte: ['$$books.returnDate', '$$books.assignedDate'] },
+              cond: { $lte: ['$$books.returnDate', Date.now()] },
             },
           },
         },
