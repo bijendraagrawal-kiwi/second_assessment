@@ -19,10 +19,7 @@ const passwordEncrypt = async (userPassword) => {
 const comparePassword = async (userPassword, bcryptPassword) => {
   try {
     const result = await bcryptjs.compare(userPassword, bcryptPassword);
-    if (!result) {
-      return constant.PASSWORD_NOT_MATCH;
-    }
-    return constant.LOGIN_SUCCESS;
+    return result;
   } catch (err) {
     return { error: err };
   }
@@ -58,7 +55,7 @@ const findPermission = async (userId, permissionType) => {
 const findBook = async (bookName, authorName) => {
   try {
     const bookObject = await book.findOne({ bookName, authorName });
-    return bookObject._id;
+    return bookObject;
   } catch (err) {
     return { error: err };
   }

@@ -1,15 +1,14 @@
 const jwt = require('jsonwebtoken');
-const path = require('path');
-const fs = require('fs');
+// const path = require('path');
+// const fs = require('fs');
 const { studentModel } = require('../schema/studentSchema');
 const { constant } = require('../constant/constant');
 const {
   passwordEncrypt, comparePassword, findStudent,
 } = require('../utils/student.utils');
-const { findbook } = require('../utils/student.utils');
+const { findBook } = require('../utils/student.utils');
 
-const findasignedbook = async (req) => {
-  const { email, _id } = req.body;
+const findasignedbook = async (email, _id) => {
   const studentObject = await studentModel.findOne({ email, 'asignedbook.bookId': _id });
   return studentObject;
 };
@@ -18,25 +17,25 @@ const studentSignup = async (req) => {
   const {
     address, password, rollNumber, name, contact, email,
   } = req.body;
-  const student = findStudent(email);
+  const student = await findStudent(email);
+  if (!student) {
+    const encryptedPassword = await passwordEncrypt(password);
+    const studentObject = new studentModel({
+      rollNumber,
+      name,
+      contact,
+      email,
+      address,
+      password: encryptedPassword,
+      // profile: {
+      //   data: fs.readFileSync(path.join(__dirname, '../upload/', req.file.filename)),
+      //   contentType: 'text/image',
+      // },
+    });
+    const studentSave = await studentObject.save();
+    return studentSave;
+  }
   if (!student.error) {
-    if (!student) {
-      const encryptedPassword = await passwordEncrypt(password);
-      const studentObject = new studentModel({
-        rollNumber,
-        name,
-        contact,
-        email,
-        address,
-        password: encryptedPassword,
-        profile: {
-          data: fs.readFileSync(path.join(__dirname, '../upload/', req.file.filename)),
-          contentType: 'text/image',
-        },
-      });
-      const studentSave = await studentObject.save();
-      return studentSave;
-    }
     return constant.STUDENT_ALREADY_PRESENT;
   }
   return student.error;
@@ -46,13 +45,15 @@ const studentLogin = async (req) => {
   const { email, password } = req.body;
   const studentObject = await studentModel.findOne({ email });
   if (!studentObject) {
-    const compare = await comparePassword(password, studentObject.password);
-    if (compare) {
-      return jwt.sign({ email }, constant.STUDENT_PRIVATE_KEY);
-    }
-    return constant.PASSWORD_NOT_MATCH;
+    return constant.STUDENT_NOT_EXIST_ERROR;
   }
-  return constant.STUDENT_NOT_EXIST_ERROR;
+  const compare = await comparePassword(password, studentObject.password);
+  if (compare) {
+    return {
+      token: jwt.sign({ email }, constant.STUDENT_PRIVATE_KEY),
+    };
+  }
+  return constant.PASSWORD_NOT_MATCH;
 };
 
 const studentUpdate = async (req) => {
@@ -60,41 +61,46 @@ const studentUpdate = async (req) => {
     password, email, contact, address, rollNumber, name,
   } = req.body;
   const encryptedUpdatePassword = await passwordEncrypt(password);
-  const studentObject = await studentModel.findOneAndUpdate({ email }, {
-    $set: {
-      rollNumber,
-      name,
-      contact,
-      address,
-      password: encryptedUpdatePassword,
-    },
-  });
-  if (!studentObject) {
-    return constant.STUDENT_UPDATE_SUCCESS;
+  const student = await studentModel.findOne({ email });
+  if (!student) {
+    return constant.STUDENT_NOT_EXIST_ERROR;
   }
-  return constant.STUDENT_NOT_EXIST_ERROR;
+  try {
+    studentModel.findOneAndUpdate({ email }, {
+      $set: {
+        rollNumber,
+        name,
+        contact,
+        address,
+        password: encryptedUpdatePassword,
+      },
+    });
+    return constant.STUDENT_UPDATE_SUCCESS;
+  } catch (err) {
+    return err;
+  }
 };
 
 const studentdelete = async (req) => {
   const { email } = req.body;
   const studentObject = await studentModel.findOneAndDelete({ email });
-  if (studentObject.deletedCount) {
-    return constant.DELETE_SUCCESSFULLY;
+  if (!studentObject) {
+    return constant.NOTHING_FOR_DELETE;
   }
-  return constant.NOTHING_FOR_DELETE;
+  return constant.DELETE_SUCCESSFULLY;
 };
 
-const assignBook = async (req, res) => {
-  const requirebook = await findbook(req);
+const assignBook = async (req) => {
+  const { bookName, authorName, email } = req.body;
+  const requirebook = await findBook(bookName, authorName);
+  if (!requirebook) {
+    return constant.BOOK_NOT_FIND;
+  }
   if (!requirebook.error) {
-    if (!requirebook) {
-      return constant.BOOK_NOT_FIND;
-    }
     const book = {
-      books: requirebook._id,
+      bookId: requirebook._id,
     };
-    const { email } = res.locals.student;
-    const isBookAsign = await findasignedbook(req, requirebook._id);
+    const isBookAsign = await findasignedbook(email, requirebook._id);
     if (!isBookAsign) {
       const studentObject = await studentModel.findOneAndUpdate(
         { email },
@@ -112,12 +118,14 @@ const assignBook = async (req, res) => {
   return requirebook.error;
 };
 
-const submitBook = async (req, res) => {
-  const { bookName, authorName } = req.body;
-  const { email } = res.locals;
-  const bookId = await findbook(bookName, authorName);
+const submitBook = async (req) => {
+  const { bookName, authorName, email } = req.body;
+  const bookId = await findBook(bookName, authorName);
+  if (!bookId) {
+    return constant.BOOK_NOT_FIND;
+  }
   if (!bookId.error) {
-    const studentObject = await studentModel.findOneAndUpdate({ email, 'asignedbook.bookId': bookId }, {
+    const studentObject = await studentModel.findOneAndUpdate({ email, 'asignedbook.bookId': bookId._id }, {
       $set: {
         'asignedbook.$.submitted': true,
       },
@@ -127,8 +135,8 @@ const submitBook = async (req, res) => {
   return bookId.error;
 };
 
-const showUserAssignedBook = async (req, res) => {
-  const { email } = res.locals;
+const showUserAssignedBook = async (req) => {
+  const { email } = req.body;
   const asignbooks = await studentModel.findOne({ email }).populate('asignedbook.bookId');
   if (asignbooks.asignedbook.length) {
     return asignbooks;
@@ -136,37 +144,50 @@ const showUserAssignedBook = async (req, res) => {
   return constant.NO_BOOK_ASSIGN;
 };
 
-const showExpireBooks = async (req, res) => {
-  const { email } = res.locals;
-  const asignbooks = await studentModel.aggregate([
-    { $match: { email } },
-    {
-      $project: {
-        $filter: {
-          input: '$asignedbook',
-          as: 'books',
-          cond: { $gte: ['$$books.returnDate', '$$books.assignedDate'] },
+const showExpireBooks = async (req) => {
+  const { email } = req.body;
+  try {
+    const asignbooks = await studentModel.aggregate([
+      { $match: { email } },
+      {
+        $project: {
+          _id: 0,
+          books: {
+            $filter: {
+              input: '$asignedbook',
+              as: 'books',
+              cond: { $gte: ['$$books.returnDate', '$$books.assignedDate'] },
+            },
+          },
         },
       },
-    },
-  ]);
-  return (asignbooks);
+    ]);
+    return (asignbooks);
+  } catch (err) {
+    console.log(err);
+    return (err);
+  }
 };
 
 const createAdmin = async (req) => {
-  const { email, name, contact } = req.body;
-  const admin = findStudent(email);
+  const {
+    email, name, contact, address, password,
+  } = req.body;
+  const admin = await findStudent(email);
+  if (!admin) {
+    const encryptedPassword = await passwordEncrypt(password);
+    const studentObject = new studentModel({
+      name,
+      email,
+      contact,
+      address,
+      password: encryptedPassword,
+      isadmin: true,
+    });
+    const result = await studentObject.save();
+    return result;
+  }
   if (!admin.error) {
-    if (!admin) {
-      const studentObject = new studentModel({
-        name,
-        email,
-        contact,
-        isadmin: true,
-      });
-      const result = await studentObject.save();
-      return result;
-    }
     return constant.ADMIN_ALREADY_PRESENT;
   }
   return admin.error;
@@ -176,18 +197,21 @@ const adminLogin = async (req) => {
   const { email, password } = req.body;
   const studentObject = await studentModel.findOne({ email });
   if (!studentObject) {
+    return constant.STUDENT_NOT_EXIST_ERROR;
+  }
+  if (studentObject.isadmin) {
     const compare = await comparePassword(password, studentObject.password);
     if (compare) {
       return jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY);
     }
     return constant.PASSWORD_NOT_MATCH;
   }
-  return constant.STUDENT_NOT_EXIST_ERROR;
+  return constant.NOT_ADMIN;
 };
 
 const bookHistory = async (req) => {
-  const { bookId } = req.body;
-  const bookHistoryObject = await studentModel.findOne({ 'asignedbook.bookId': bookId }).populate('asignedbook.bookId');
+  const { _id } = req.body;
+  const bookHistoryObject = await studentModel.findOne({ 'asignedbook.bookId': _id }).populate('asignedbook.bookId');
   return bookHistoryObject;
 };
 

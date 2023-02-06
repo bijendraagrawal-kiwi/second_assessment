@@ -4,16 +4,16 @@ const { findPermission } = require('../utils/student.utils');
 
 const createPermission = async (req) => {
   const { userId, permissionType } = req.body;
-  const isPermissionPresent = findPermission(userId, permissionType);
+  const isPermissionPresent = await findPermission(userId, permissionType);
+  if (!isPermissionPresent) {
+    const permissionObject = new permission({
+      userId,
+      permissionType,
+    });
+    const result = await permissionObject.save();
+    return result;
+  }
   if (!isPermissionPresent.error) {
-    if (!isPermissionPresent) {
-      const permissionObject = new permission({
-        userId,
-        permissionType,
-      });
-      const result = await permissionObject.save();
-      return result;
-    }
     return constant.PERMISSION_ALREADY_GIVEN;
   }
   return isPermissionPresent.error;
@@ -22,27 +22,14 @@ const createPermission = async (req) => {
 const deletePermission = async (req) => {
   const { userId, permissionType } = req.body;
   const permissionObject = await permission.findOneAndDelete({ userId, permissionType });
-  if (permissionObject.deletedCount) {
-    return constant.DELETE_SUCCESSFULLY;
+  console.log(permissionObject);
+  if (!permissionObject) {
+    return constant.NOTHING_FOR_DELETE;
   }
-  return constant.NOTHING_FOR_DELETE;
-};
-
-const upadtePermission = async (req) => {
-  const { userId, permissionType } = req.body;
-  const permissionObject = await permission.findByIdAndUpdate({ userId }, {
-    $set: {
-      permissionType,
-    },
-  });
-  if (permissionObject == null) {
-    return constant.PERMISSION_NOT_EXIST_ERROR;
-  }
-  return constant.PERMISSION_UPDATE_SUCCESS;
+  return constant.DELETE_SUCCESSFULLY;
 };
 
 module.exports = {
   createPermission,
   deletePermission,
-  upadtePermission,
 };

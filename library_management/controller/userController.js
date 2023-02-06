@@ -60,7 +60,7 @@ const assignBookToStudent = async (req, res) => {
 
 const submitAsignbook = async (req, res) => {
   try {
-    const result = await submitBook(req, res);
+    const result = await submitBook(req);
     res.send(result);
   } catch (err) {
     console.log(err);
@@ -70,7 +70,7 @@ const submitAsignbook = async (req, res) => {
 
 const userAsignBook = async (req, res) => {
   try {
-    const result = await showUserAssignedBook(req, res);
+    const result = await showUserAssignedBook(req);
     res.send(result);
   } catch (err) {
     res.send(err);
@@ -79,7 +79,7 @@ const userAsignBook = async (req, res) => {
 
 const userExpireBooks = async (req, res) => {
   try {
-    const result = await showExpireBooks(req, res);
+    const result = await showExpireBooks(req);
     res.send(result);
   } catch (err) {
     res.send(err);

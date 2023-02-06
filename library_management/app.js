@@ -7,6 +7,7 @@ const YAML = require('yamljs');
 const { userRouter } = require('./router/user.router');
 const { subAdmin } = require('./router/sub.admin.router');
 const { bookRouter } = require('./router/book.router');
+const { permission } = require('./router/permission.router');
 
 const swaggerDocs = YAML.load('./api.yaml');
 const app = express();
@@ -17,4 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(userRouter);
 app.use(subAdmin);
 app.use(bookRouter);
-app.listen(process.env.PORT);
+app.use(permission);
+
+module.exports = {
+  app,
+};

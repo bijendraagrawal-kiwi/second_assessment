@@ -3,19 +3,13 @@ const permission = {};
 constant.STUDENT_PRIVATE_KEY = 'studentkey';
 constant.ADMIN_PRIVATE_KEY = 'adminkey';
 constant.SUB_ADMIN_KEY = 'subadminkey';
-constant.STUDENT_NOT_EXIST_ERROR = {
-  status: 404,
-  message: 'student does not exist',
-};
-constant.PASSWORD_NOT_MATCH = {
-  status: 404,
-  message: 'student password does not match',
-};
+constant.STUDENT_NOT_EXIST_ERROR = 'student does not exist';
+constant.PASSWORD_NOT_MATCH = 'student password does not match';
 constant.LOGIN_SUCCESS = 'student login successfully';
 constant.STUDENT_UPDATE_SUCCESS = 'student has been update successfully';
 constant.NOTHING_FOR_DELETE = {
   status: 404,
-  message: 'there is not any student for delete',
+  message: 'there is not any data for delete',
 };
 constant.DELETE_SUCCESSFULLY = 'student has been delete successfully';
 constant.PERMISSION_UPDATE_SUCCESS = 'permission has been update successfully';
@@ -58,6 +52,10 @@ constant.SUB_ADMIN_ALREADY_EXIST = {
 constant.NO_BOOK_ASSIGN = {
   status: 404,
   message: 'there is not any assign book to the student',
+};
+constant.LOGIN_FIRST = {
+  status: 401,
+  message: 'Please login first',
 };
 permission.UPDATE = 'update';
 permission.DELETE = 'delete';

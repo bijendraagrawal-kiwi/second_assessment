@@ -2,7 +2,7 @@ const { addbook, deletebook } = require('../service/book.service');
 
 const addBookController = async (req, res) => {
   try {
-    const result = await addbook(req, res);
+    const result = await addbook(req);
     res.send(result);
   } catch (err) {
     res.send(err);
@@ -11,7 +11,7 @@ const addBookController = async (req, res) => {
 
 const deleteBookController = async (req, res) => {
   try {
-    const result = await deletebook(req, res);
+    const result = await deletebook(req);
     res.send(result);
   } catch (err) {
     res.send(err);

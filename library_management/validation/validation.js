@@ -3,56 +3,69 @@ const { constant, permission } = require('../constant/constant');
 const { subAdminVerification } = require('../utils/student.utils');
 
 const studentVerification = async (req, res, next) => {
-  const { token } = req.body;
-  try {
-    const studentObject = jwt.verify(token, constant.STUDENT_PRIVATE_KEY);
-    res.locals.student = studentObject;
-    next();
-  } catch (err) {
-    res.send(err);
+  if (!req.headers.authorization) {
+    res.send(constant.LOGIN_FIRST);
+  } else {
+    const token = req.headers.authorization.split(' ')[1];
+    try {
+      const studentObject = jwt.verify(token, constant.STUDENT_PRIVATE_KEY);
+      req.body.email = studentObject.email;
+      next();
+    } catch (err) {
+      res.send(err);
+    }
   }
 };
 
 const updateAdminVerification = async (req, res, next) => {
-  const { token } = req.body;
-  try {
-    res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
-    next();
-  } catch (err) {
+  if (!req.headers.authorization) {
+    res.send(constant.LOGIN_FIRST);
+  } else {
+    const token = req.headers.authorization.split(' ')[1];
     try {
-      const subAdmin = await subAdminVerification(token);
-      if (subAdmin.permission === permission.UPDATE) {
-        next();
+      res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
+      next();
+    } catch (err) {
+      try {
+        const subAdmin = await subAdminVerification(token);
+        if (subAdmin.permission === permission.UPDATE) {
+          next();
+        }
+        res.send(constant.PERMISSION_NOT_EXIST_ERROR);
+      } catch (error) {
+        res.send(error);
       }
-      res.send(constant.PERMISSION_NOT_EXIST_ERROR);
-    } catch (error) {
-      res.send(error);
     }
   }
 };
 
 const deleteAdminVerification = async (req, res, next) => {
-  const { token } = req.body;
-  try {
-    res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
-    next();
-  } catch (err) {
+  if (!req.headers.authorization) {
+    res.send(constant.LOGIN_FIRST);
+  } else {
+    const token = req.headers.authorization.split(' ')[1];
     try {
-      const subAdmin = await subAdminVerification(token);
-      if (subAdmin.permission === permission.DELETE) {
-        next();
+      res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
+      next();
+    } catch (err) {
+      try {
+        const subAdmin = await subAdminVerification(token);
+        if (subAdmin.permission === permission.DELETE) {
+          next();
+        }
+        res.send(constant.PERMISSION_NOT_EXIST_ERROR);
+      } catch (error) {
+        res.send(error);
       }
-      res.send(constant.PERMISSION_NOT_EXIST_ERROR);
-    } catch (error) {
-      res.send(error);
     }
   }
 };
 
 const adminVerification = async (req, res, next) => {
-  const { token } = req.body;
+  const token = req.headers.authorization.split(' ')[1];
   try {
-    res.locals.admin = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
+    const tokenObject = jwt.verify(token, constant.ADMIN_PRIVATE_KEY);
+    req.body.email = tokenObject.email;
     next();
   } catch (err) {
     res.send(err);

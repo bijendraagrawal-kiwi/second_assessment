@@ -1,11 +1,11 @@
 const express = require('express');
 const { addBookController, deleteBookController } = require('../controller/bookController');
-const { isAdmin } = require('../middleware/admin.validator');
+const { adminVerification } = require('../validation/validation');
 
 const bookRouter = express.Router();
 
-bookRouter.post('/addbook', isAdmin, addBookController);
-bookRouter.delete('/deletebook', isAdmin, deleteBookController);
+bookRouter.post('/addbook', adminVerification, addBookController);
+bookRouter.delete('/deletebook', adminVerification, deleteBookController);
 module.exports = {
   bookRouter,
 };
