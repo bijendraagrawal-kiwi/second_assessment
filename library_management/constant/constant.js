@@ -9,6 +9,7 @@ constant.LOGIN_SUCCESS = 'student login successfully';
 constant.STUDENT_UPDATE_SUCCESS = 'student has been update successfully';
 constant.NOTHING_FOR_DELETE = 'there is not any data for delete';
 constant.DELETE_SUCCESSFULLY = 'student has been delete successfully';
+constant.BOOK_DELETE_SUCCESSFULLY = 'book has been delete successfully';
 constant.PERMISSION_UPDATE_SUCCESS = 'permission has been update successfully';
 constant.PERMISSION_NOT_EXIST_ERROR = 'you have not required permission';
 constant.SUB_ADMIN_CREATED = 'sub admin has been created';

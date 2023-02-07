@@ -27,7 +27,7 @@ const deletebook = async (req) => {
     bookName,
   });
   if (bookObject) {
-    return constant.DELETE_SUCCESSFULLY;
+    return constant.BOOK_DELETE_SUCCESSFULLY;
   }
   return constant.NOTHING_FOR_DELETE;
 };
