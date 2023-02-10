@@ -6,6 +6,7 @@ const bookRouter = express.Router();
 
 bookRouter.post('/addbook', adminVerification, addBookController);
 bookRouter.delete('/deletebook', adminVerification, deleteBookController);
+
 module.exports = {
   bookRouter,
 };

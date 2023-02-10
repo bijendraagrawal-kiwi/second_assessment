@@ -12,6 +12,8 @@ const { permission } = require('./router/permission.router');
 const swaggerDocs = YAML.load('./api.yaml');
 const app = express();
 
+app.set('view engine', 'ejs');
+
 app.use('/librarymanagement', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));

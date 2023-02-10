@@ -184,8 +184,7 @@ const createAdmin = async (req) => {
       password: encryptedPassword,
       isadmin: true,
     });
-    const result = await studentObject.save();
-    return result;
+    return await studentObject.save();
   }
   if (!admin.error) {
     return constant.ADMIN_ALREADY_PRESENT;

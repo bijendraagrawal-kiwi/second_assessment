@@ -22,10 +22,7 @@ const addbook = async (req) => {
 
 const deletebook = async (req) => {
   const { bookId, bookName } = req.body;
-  const bookObject = await book.findOneAndDelete({
-    bookId,
-    bookName,
-  });
+  const bookObject = await book.findOneAndDelete({ bookId, bookName });
   if (bookObject) {
     return constant.BOOK_DELETE_SUCCESSFULLY;
   }

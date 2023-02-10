@@ -43,9 +43,9 @@ const findStudent = async (email) => {
   }
 };
 
-const findPermission = async (userId, permissionType) => {
+const findPermission = async (userId) => {
   try {
-    const permissionObject = await permission.findOne({ userId, permissionType });
+    const permissionObject = await permission.findOne({ userId });
     return permissionObject;
   } catch (err) {
     return { error: err };
