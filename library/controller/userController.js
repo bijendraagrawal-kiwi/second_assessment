@@ -1,5 +1,10 @@
 const {
-  studentSignup, studentLogin, studentUpdate, studentdelete,
+  studentSignup,
+  studentLogin,
+  assignBook,
+  submitBook,
+  showUserAssignedBook,
+  showExpireBooks,
 } = require('../service/student.service');
 
 const signup = async (req, res) => {
@@ -21,27 +26,47 @@ const login = async (req, res) => {
   }
 };
 
-const updatestudent = async (req, res) => {
+const assignBookToStudent = async (req, res) => {
   try {
-    const result = await studentUpdate(req.body);
+    const result = await assignBook(req);
     res.send(result);
   } catch (err) {
     res.send(err);
   }
 };
 
-const deleteStudent = async (req, res) => {
+const submitAsignbook = async (req, res) => {
   try {
-    const result = await studentdelete(req.body, res);
+    const result = await submitBook(req);
     res.send(result);
   } catch (err) {
-    res.send(err);
+    res.status(404).send(err);
+  }
+};
+
+const userAsignBook = async (req, res) => {
+  try {
+    const result = await showUserAssignedBook(req);
+    res.send(result);
+  } catch (err) {
+    res.status(404).send(err);
+  }
+};
+
+const userExpireBooks = async (req, res) => {
+  try {
+    const result = await showExpireBooks(req);
+    res.send(result);
+  } catch (err) {
+    res.status(404).send(err);
   }
 };
 
 module.exports = {
   signup,
   login,
-  updatestudent,
-  deleteStudent,
+  assignBookToStudent,
+  submitAsignbook,
+  userAsignBook,
+  userExpireBooks,
 };

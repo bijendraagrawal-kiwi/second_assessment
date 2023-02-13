@@ -4,7 +4,7 @@ const bcryptjs = require('bcryptjs');
 // const { constant } = require('../constant/constant');
 const { studentModel } = require('../schema/studentSchema');
 const permission = require('../schema/permissionSchema');
-// const book = require('../schema/bookSchema');
+const book = require('../schema/bookSchema');
 
 const passwordEncrypt = async (userPassword) => {
   try {
@@ -55,10 +55,26 @@ const findPermission = async (_id) => {
   }
 };
 
+const findBook = async (bookName, authorName) => {
+  try {
+    const bookObject = await book.findOne({ bookName, authorName });
+    return bookObject;
+  } catch (err) {
+    return { error: err };
+  }
+};
+
+const findAsignedBook = async (email, _id) => {
+  const studentObject = await studentModel.findOne({ email, 'asignedbook.bookId': _id });
+  return studentObject;
+};
+
 module.exports = {
   passwordEncrypt,
   comparePassword,
   findadmin,
   findStudent,
   findPermission,
+  findBook,
+  findAsignedBook,
 };

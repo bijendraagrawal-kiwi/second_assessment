@@ -12,7 +12,7 @@ const studentVerification = async (req, res, next) => {
       req.body.email = studentObject.email;
       next();
     } catch (err) {
-      res.send(err);
+      res.status(404).send(err);
     }
   }
 };
