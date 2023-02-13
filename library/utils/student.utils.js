@@ -1,6 +1,6 @@
 const bcryptjs = require('bcryptjs');
 // const jwt = require('jsonwebtoken');
-// const multer = require('multer');
+const multer = require('multer');
 // const { constant } = require('../constant/constant');
 const { studentModel } = require('../schema/studentSchema');
 const permission = require('../schema/permissionSchema');
@@ -12,7 +12,10 @@ const passwordEncrypt = async (userPassword) => {
     const securePassword = await bcryptjs.hash(userPassword, salt);
     return securePassword;
   } catch (err) {
-    return { error: err };
+    return {
+      status: 404,
+      message: err,
+    };
   }
 };
 
@@ -39,7 +42,7 @@ const findStudent = async (email) => {
     const studentObject = await studentModel.findOne({ email });
     return studentObject;
   } catch (err) {
-    return { error: err };
+    return { status: 404, error: err };
   }
 };
 
@@ -60,7 +63,10 @@ const findBook = async (bookName, authorName) => {
     const bookObject = await book.findOne({ bookName, authorName });
     return bookObject;
   } catch (err) {
-    return { error: err };
+    return {
+      status: 404,
+      message: err,
+    };
   }
 };
 
@@ -68,6 +74,18 @@ const findAsignedBook = async (email, _id) => {
   const studentObject = await studentModel.findOne({ email, 'asignedbook.bookId': _id });
   return studentObject;
 };
+
+const uploadfile = multer({
+  storage: multer.diskStorage({
+
+    destination: (req, file, callback) => {
+      callback(null, 'upload/');
+    },
+    filename: (req, file, callback) => {
+      callback(null, file.originalname);
+    },
+  }),
+});
 
 module.exports = {
   passwordEncrypt,
@@ -77,4 +95,5 @@ module.exports = {
   findPermission,
   findBook,
   findAsignedBook,
+  uploadfile,
 };

@@ -4,7 +4,7 @@ const { findStudent, findPermission } = require('../utils/student.utils');
 
 const studentVerification = async (req, res, next) => {
   if (!req.headers.authorization) {
-    res.send(constant.LOGIN_FIRST);
+    res.status(404).send(constant.LOGIN_FIRST);
   } else {
     const token = req.headers.authorization.split(' ')[1];
     try {
@@ -46,8 +46,9 @@ const adminVerification = async (req, res, next) => {
       req.body.admin = admin;
       if (admin.isadmin) {
         next();
+      } else {
+        subAdminVerification(req, res, next);
       }
-      subAdminVerification(req, res, next);
     } catch (err) {
       res.status(404).send(err);
     }

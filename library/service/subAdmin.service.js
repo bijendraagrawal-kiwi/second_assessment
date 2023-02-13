@@ -19,28 +19,49 @@ const createSubAdmin = async (req) => {
       issubadmin: true,
     });
     const result = await subAdminResult.save();
-    return result;
+    return {
+      status: 200,
+      message: result,
+    };
   }
   if (!isSubAdminPresent.error) {
-    return constant.SUB_ADMIN_ALREADY_EXIST;
+    return {
+      status: 401,
+      message: constant.SUB_ADMIN_ALREADY_EXIST,
+    };
   }
-  return isSubAdminPresent.error;
+  return {
+    status: 404,
+    message: isSubAdminPresent.error,
+  };
 };
 
 const subAdminLogin = async (req) => {
   const { email, password } = req.body;
   const subAdminObject = await subAdmin.studentModel.findOne({ email });
   if (!subAdminObject) {
-    return constant.STUDENT_NOT_EXIST_ERROR;
+    return {
+      status: 404,
+      message: constant.STUDENT_NOT_EXIST_ERROR,
+    };
   }
   if (subAdminObject.issubadmin) {
     const compare = await comparePassword(password, subAdminObject.password);
     if (compare) {
-      return jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY);
+      return {
+        status: 200,
+        message: jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY),
+      };
     }
-    return constant.PASSWORD_NOT_MATCH;
+    return {
+      status: 401,
+      message: constant.PASSWORD_NOT_MATCH,
+    };
   }
-  return constant.NOT_SUB_ADMIN;
+  return {
+    status: 404,
+    message: constant.NOT_SUB_ADMIN,
+  };
 };
 
 module.exports = {

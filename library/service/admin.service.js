@@ -16,10 +16,13 @@ const studentUpdate = async (req) => {
   const encryptedUpdatePassword = await passwordEncrypt(password);
   const student = await studentModel.findOne({ email });
   if (!student) {
-    return constant.STUDENT_NOT_EXIST_ERROR;
+    return {
+      status: 404,
+      message: constant.STUDENT_NOT_EXIST_ERROR,
+    };
   }
   try {
-    studentModel.findOneAndUpdate({ email }, {
+    await studentModel.findOneAndUpdate({ email }, {
       $set: {
         rollNumber,
         name,
@@ -28,9 +31,15 @@ const studentUpdate = async (req) => {
         password: encryptedUpdatePassword,
       },
     });
-    return constant.STUDENT_UPDATE_SUCCESS;
+    return {
+      status: 200,
+      message: constant.STUDENT_UPDATE_SUCCESS,
+    };
   } catch (err) {
-    return err;
+    return {
+      status: 404,
+      message: err,
+    };
   }
 };
 
@@ -38,9 +47,15 @@ const studentdelete = async (req) => {
   const { email } = req;
   const studentObject = await studentModel.findOneAndDelete({ email });
   if (!studentObject) {
-    return constant.NOTHING_FOR_DELETE;
+    return {
+      status: 404,
+      message: constant.NOTHING_FOR_DELETE,
+    };
   }
-  return constant.DELETE_SUCCESSFULLY;
+  return {
+    status: 200,
+    message: constant.DELETE_SUCCESSFULLY,
+  };
 };
 
 const createAdmin = async (req) => {
@@ -58,10 +73,17 @@ const createAdmin = async (req) => {
       password: encryptedPassword,
       isadmin: true,
     });
-    return await studentObject.save();
+    const result = await studentObject.save();
+    return {
+      status: 200,
+      message: result,
+    };
   }
   if (!admin.error) {
-    return constant.ADMIN_ALREADY_PRESENT;
+    return {
+      status: 401,
+      message: constant.ADMIN_ALREADY_PRESENT,
+    };
   }
   return admin.error;
 };
@@ -70,22 +92,37 @@ const adminLogin = async (req) => {
   const { email, password } = req.body;
   const studentObject = await studentModel.findOne({ email });
   if (!studentObject) {
-    return constant.STUDENT_NOT_EXIST_ERROR;
+    return {
+      status: 401,
+      message: constant.STUDENT_NOT_EXIST_ERROR,
+    };
   }
   if (studentObject.isadmin) {
     const compare = await comparePassword(password, studentObject.password);
     if (compare) {
-      return jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY);
+      return {
+        status: 200,
+        message: jwt.sign({ email }, constant.ADMIN_PRIVATE_KEY),
+      };
     }
-    return constant.PASSWORD_NOT_MATCH;
+    return {
+      status: 401,
+      message: constant.PASSWORD_NOT_MATCH,
+    };
   }
-  return constant.NOT_ADMIN;
+  return {
+    status: 401,
+    message: constant.NOT_ADMIN,
+  };
 };
 
 const bookHistory = async (req) => {
   const { _id } = req.body;
   const bookHistoryObject = await studentModel.findOne({ 'asignedbook.bookId': _id }).populate('asignedbook.bookId');
-  return bookHistoryObject;
+  return {
+    status: 200,
+    message: bookHistoryObject,
+  };
 };
 
 const addbook = async (req) => {
@@ -98,21 +135,36 @@ const addbook = async (req) => {
       authorName,
     });
     const result = await bookObject.save();
-    return result;
+    return {
+      status: 200,
+      message: result,
+    };
   }
   if (!isBookPresent.error) {
-    return constant.BOOK_ALREADY_PRESENT;
+    return {
+      status: 404,
+      message: constant.BOOK_ALREADY_PRESENT,
+    };
   }
-  return isBookPresent.error;
+  return {
+    status: 404,
+    message: isBookPresent.error,
+  };
 };
 
 const deletebook = async (req) => {
   const { bookId, bookName } = req.body;
   const bookObject = await book.findOneAndDelete({ bookId, bookName });
   if (bookObject) {
-    return constant.BOOK_DELETE_SUCCESSFULLY;
+    return {
+      status: 200,
+      message: constant.BOOK_DELETE_SUCCESSFULLY,
+    };
   }
-  return constant.NOTHING_FOR_DELETE;
+  return {
+    status: 404,
+    message: constant.NOTHING_FOR_DELETE,
+  };
 };
 
 module.exports = {
